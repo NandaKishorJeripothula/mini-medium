@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Text } from 'react-native';
+
+import { Container, Header, Title, Content, Button, Left, Body, Text, Form, Item, Label, Input, Right, Spinner } from 'native-base';
+import { View, Alert } from 'react-native';
 
 class Auth extends Component {
 
@@ -13,18 +15,34 @@ class Auth extends Component {
             passwordInputVal: ''
         }
     }
-
     async componentWillMount() {
         await Expo.Font.loadAsync({
-            'Roboto': require('native-base/Fonts/Roboto.ttf'),
-            'Roboto_medium': require('native-base/Fonts/Roboto_medium.ttf'),
+            Roboto: require("native-base/Fonts/Roboto.ttf"),
+            Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
+            //   Ionicons: require("@expo/vector-icons/fonts/Ionicons.ttf"),
         });
+        this.setState({ loading: false });
+    }
+    /**
+         * since we are using this keyword when we invoke method, there is no need to bind again
+         * either should be done, binding or using of this keyword 
+         */
+
+    handleUsernameChange = (usernameTextBox) => {
+        this.setState({
+            ...this.state,
+            usernameInputVal: usernameTextBox
+        })
     }
 
+    handlePasswordChange = (passwordTextBox) => {
+        this.setState({
+            ...this.state,
+            passwordInputVal: passwordTextBox
+        })
+    }
     render() {
-        return (
-            // <Text> Hey am Atuh screen</Text>
-            if (this.state.loading === true) {
+        if (this.state.loading === true) {
             return (
                 <Container>
                     <Header />
@@ -36,22 +54,22 @@ class Auth extends Component {
         } else {
             return (
                 <Container>
-                    <Header>
+                    {/* <Header>
                         <Left />
                         <Body>
                             <Title> Login </Title>
                         </Body>
                         <Right />
-                    </Header>
+                    </Header> */}
                     <Content contentContainerStyle={{ justifyContent: 'center', margin: 20 }}>
                         <Form>
                             <Item floatingLabel>
                                 <Label>Username</Label>
-                                <Input value={this.state.usernameTextBox} onChangeText={this.handleUsernameChange} />
+                                <Input value={this.state.usernameInputVal} onChangeText={this.handleUsernameChange} />
                             </Item>
                             <Item floatingLabel>
                                 <Label>Password</Label>
-                                <Input value={this.state.passwordTextbox} onChangeText={this.handlePasswordChange} secureTextEntry />
+                                <Input value={this.state.passwordInputVal} onChangeText={this.handlePasswordChange} secureTextEntry />
                             </Item>
                         </Form>
                         <View style={{ height: 10 }} />
@@ -66,7 +84,6 @@ class Auth extends Component {
                 </Container>
             )
         }
-        )
     }
 }
 export default connect()(Auth);
