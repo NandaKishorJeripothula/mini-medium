@@ -5,7 +5,9 @@ import PropTypes from 'prop-types';
 import Auth from './auth';
 import Articles from './articles';
 class Home extends Component {
-
+  static navigationOptions = {
+    title: 'Home',
+  };
   /**
    * After loading the component check whether any session is present 
    * if not redirect to authScreen
