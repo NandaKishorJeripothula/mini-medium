@@ -7,7 +7,7 @@ import Articles from './articles';
 import { Container, Spinner, Content } from 'native-base';
 class Home extends Component {
   static navigationOptions = {
-    title: 'Home',
+    title: 'Mini-Medium',
   };
   constructor() {
     super();
@@ -64,6 +64,7 @@ class Home extends Component {
         return (<Auth />)
       }
       else {
+        // return this.props.navigation.navigate('Articles');
         return (<Articles />)
       }
   }

@@ -1,15 +1,18 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { View, Button, Text } from 'native-base';
-import logout from '../redux/actions'
+import { logout } from '../redux/actions'
 
 class Articles extends Component {
+    static navigationOptions = {
+        title: 'Articles',
+    };
     constructor(props) {
         super(props);
     }
 
     handleLogoutPressed() {
-        this.props.dispatch({ type: 'RESET_STATE' })
+        this.props.dispatch(logout());
     }
     render() {
         return (

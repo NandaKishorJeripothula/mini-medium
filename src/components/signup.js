@@ -1,9 +1,12 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
+
+import { storeSession } from '../redux/actions'
 import ImagePicker from 'expo';
-import tryAuth from '../apis';
+import { tryAuth } from '../apis';
 import { Container, Title, Content, Button, Thumbnail, Body, Text, Form, Item, Label, Input, Right, Spinner } from 'native-base';
 import { View, Alert } from 'react-native';
+import Articles from './articles';
 class SignUp extends Component {
     static navigationOptions = {
         title: 'Signup',
@@ -56,10 +59,15 @@ class SignUp extends Component {
     }
 
     handleSignUpPressed = async () => {
+
+
         var resp = await tryAuth(this.state.usernameInputVal, this.state.passwordInputVal, "signup");
+        console.log(resp)
         if (resp.status !== 200) {
             if (resp.status === 503) {
                 Alert.alert("Network Error", "Please check your internet connection");
+            } else if (resp.status === 400) {
+                Alert.alert("Account Exists", "Please choose diff username");
             } else {
                 Alert.alert("Unauthorized", "Invalid Credentials");
             }
@@ -91,15 +99,7 @@ class SignUp extends Component {
     };
 
     render() {
-        if (this.state.loading === true) {
-            return (
-                <Container>
-                    <Content>
-                        <Spinner />
-                    </Content>
-                </Container>
-            );
-        } else {
+        if (Object.keys(this.props.session).length === 0) {
             return (
                 <Content contentContainerStyle={{ justifyContent: 'center', margin: 20 }}>
                     <Form>
@@ -139,7 +139,20 @@ class SignUp extends Component {
                 </Content>
             )
         }
+        else {
+            return (<Articles />)
+        }
+
     }
 }
 
-export default connect()(SignUp);
+function mapStateToProps(state) {
+    return {
+        /**
+         * This state object is taken from the store 
+         * session curresponds to the session attribute in initial state
+         */
+        session: state.session,
+    };
+}
+export default connect(mapStateToProps)(SignUp);

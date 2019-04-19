@@ -2,6 +2,11 @@
 import { AsyncStorage, Alert } from 'react-native';
 
 export function logout() {
+  try {
+    AsyncStorage.removeItem("@minimedium:session");
+  } catch (e) {
+    console.log(e)
+  }
   return {
     type: 'RESET_STATE'
   };
