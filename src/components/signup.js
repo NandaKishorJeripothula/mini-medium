@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-
 import { storeSession } from '../redux/actions'
 import { ImagePicker } from 'expo';
 import { tryAuth, uploadImage, createUser } from '../apis';
@@ -11,11 +10,10 @@ class SignUp extends Component {
     static navigationOptions = {
         title: 'Signup',
     };
-
     constructor(props) {
         super(props);
         this.state = {
-            loading: true,
+            loading: false,
             userCreated: false,
             usernameInputVal: '',
             passwordInputVal: '',
@@ -31,15 +29,6 @@ class SignUp extends Component {
          * since we are using this keyword when we invoke method, there is no need to bind again
          * either should be done, binding or using of this keyword 
          */
-    async componentWillMount() {
-        await Expo.Font.loadAsync({
-            Roboto: require("native-base/Fonts/Roboto.ttf"),
-            Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
-            //   Ionicons: require("@expo/vector-icons/fonts/Ionicons.ttf"),
-        });
-        this.setState({ loading: false });
-    }
-
     handleSignUpPressed = async () => {
         this.setState({ loading: true });
         var resp = await tryAuth(this.state.usernameInputVal, this.state.passwordInputVal, "signup");
@@ -146,13 +135,11 @@ class SignUp extends Component {
             allowsEditing: true,
             aspect: [4, 3],
         });
-
         // console.log(result);
         if (!result.cancelled) {
             this.setState({ imageUri: result });
         }
     };
-
 
     handleCityChange = (city) => {
         this.setState({ city: city });
@@ -175,7 +162,15 @@ class SignUp extends Component {
         })
     }
     render() {
-        if ((Object.keys(this.props.session).length === 0)) {
+        if (this.state.loading === true) {
+            return (
+                <Container>
+                    <Content>
+                        <Spinner />
+                    </Content>
+                </Container>
+            );
+        } else if ((Object.keys(this.props.session).length === 0)) {
             return (
                 <Content contentContainerStyle={{ justifyContent: 'center', margin: 20 }}>
                     <Form>

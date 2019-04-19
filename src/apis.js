@@ -52,12 +52,12 @@ export async function uploadImage(image, token) {
         method: 'POST',
         headers: {
             "Authorization": "Bearer " + token,
+            "type": image.type,
         },
     };
-    requestOptions.body = JSON.stringify(image);
+    requestOptions.body = image;
     try {
         var resp = await fetch(url, requestOptions);
-        console.log(resp.body);
         // file_id,content_type
         return resp;
     }
