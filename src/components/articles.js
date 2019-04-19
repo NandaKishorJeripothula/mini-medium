@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-import { View, Button, Text } from 'native-base';
+import { View, Button, Text, Container, Content, Footer } from 'native-base';
 import { logout } from '../redux/actions'
-
+import { withNavigation } from 'react-navigation';
+import FooterTabNavigator from './footerTabNavigator';
 class Articles extends Component {
     static navigationOptions = {
         title: 'Articles',
@@ -16,14 +17,22 @@ class Articles extends Component {
     }
     render() {
         return (
-            <View>
-                <Text> Hey am artciles screen</Text>
-                <Button transparent onPress={() => { this.handleLogoutPressed() }} >
-                    <Text>Logout</Text>
-                </Button>
+            <Container>
+                <Content>
+                    <View>
+                        <Text> Hey am artciles screen</Text>
+                        <Button transparent onPress={() => { this.handleLogoutPressed() }} >
+                            <Text>Logout</Text>
+                        </Button>
+                    </View >
+                </Content>
+                <Footer>
+                    <FooterTabNavigator />
+                </Footer>
 
-            </View >
+            </Container>
+
         )
     }
 }
-export default connect()(Articles);
+export default connect()(withNavigation(Articles));

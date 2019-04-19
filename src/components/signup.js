@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux';
 
 import { storeSession } from '../redux/actions'
-import ImagePicker from 'expo';
-import { tryAuth } from '../apis';
+import { ImagePicker } from 'expo';
+import { tryAuth, uploadImage } from '../apis';
 import { Container, Title, Content, Button, Thumbnail, Body, Text, Form, Item, Label, Input, Right, Spinner } from 'native-base';
 import { View, Alert } from 'react-native';
 import Articles from './articles';
@@ -81,6 +81,7 @@ class SignUp extends Component {
             }
             await storeSession(session);
             this.props.dispatch({ type: 'SET_SESSION', session });
+            // var imageUploadRes = await uploadImage()
             // var createUserData= await tryUserCreate(this.state.fullName, this.state.) 
         }
     }
