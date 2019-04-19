@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import ImagePicker from 'expo';
+import tryAuth from '../apis';
 import { Container, Title, Content, Button, Thumbnail, Body, Text, Form, Item, Label, Input, Right, Spinner } from 'native-base';
 import { View, Alert } from 'react-native';
 class SignUp extends Component {
@@ -54,7 +55,7 @@ class SignUp extends Component {
         })
     }
 
-    handleLoginPressed = async () => {
+    handleSignUpPressed = async () => {
         var resp = await tryAuth(this.state.usernameInputVal, this.state.passwordInputVal, "signup");
         if (resp.status !== 200) {
             if (resp.status === 503) {
@@ -72,6 +73,7 @@ class SignUp extends Component {
             }
             await storeSession(session);
             this.props.dispatch({ type: 'SET_SESSION', session });
+            // var createUserData= await tryUserCreate(this.state.fullName, this.state.) 
         }
     }
     _pickImage = async () => {
@@ -130,7 +132,7 @@ class SignUp extends Component {
 
                     </Form>
                     <View style={{ height: 10 }} />
-                    <Button block title="Log in" onPress={this.handleLoginPressed} >
+                    <Button block title="Log in" onPress={this.handleSignUpPressed} >
                         <Text>SingUp</Text>
                     </Button>
                     <View style={{ height: 10 }} />

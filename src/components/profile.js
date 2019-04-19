@@ -5,7 +5,7 @@ import { Text } from 'react-native'
 class Profile extends Component {
     render() {
         return (
-            <Text> Hey am artciles screen</Text>
+            <Text> Hey am Profile screen,, add logout button</Text>
         )
     }
 }

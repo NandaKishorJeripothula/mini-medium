@@ -6,7 +6,15 @@ const initialState = {
 }
 export default function reducer(state = initialState, action) {
     switch (action.type) {
-
+        case 'SET_SESSION':
+            return {
+                ...state, session: action.session
+            }
+        case 'RESET_STATE':
+            return {
+                ...initialState
+            }
+        default:
     }
     return state;
 }

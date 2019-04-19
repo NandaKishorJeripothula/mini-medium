@@ -1,16 +1,22 @@
+// import { authUrl, dataUrl, fileStoreUrl, apiUrl } from './config'
+
+const clusterName = "loathsome61"; //Add your own cluster name
+var authUrl = "https://auth." + clusterName + ".hasura-app.io/v1/";
+var dataUrl = "https://data." + clusterName + ".hasura-app.io/v1/query";
+var fileStoreUrl = "https://filestore." + clusterName + ".hasura-app.io/v1/query";
+var apiUrl = "https://api." + clusterName + ".hasura-app.io";
+
 const networkErrorObj = {
     status: 503
 }
-
-export async function tryAuth(username, password, task, dispatch) {
+export async function tryAuth(username, password, task) {
     var requestOptions = {
         "method": "POST",
         "headers": {
             "Content-Type": "application/json"
         }
     };
-    var url = authUrl + task;
-    console.log(url)
+
     var body = {
         "provider": "username",
         "data": {
@@ -18,15 +24,33 @@ export async function tryAuth(username, password, task, dispatch) {
             "password": password
         }
     };
-    console.log("BeforeFetch")
-    requestOptions["body"] = JSON.stringify(body);
 
+    var url = authUrl + task;
+
+    requestOptions.body = JSON.stringify(body);
     try {
         var resp = await fetch(url, requestOptions);
+        console.log(resp);
         return resp;
     }
     catch (err) {
         console.log("Request Failed: " + err);
         return networkErrorObj;
     }
+
+
+
+    // fetch(url, requestOptions)
+    //     .then(function (response) {
+    //         return response.json();
+    //     })
+    //     .then(function (result) {
+    //         console.log(result);
+    //         // To save the auth token received to offline storage
+    //         // var authToken = result.auth_token
+    //         // AsyncStorage.setItem('HASURA_AUTH_TOKEN', authToken);
+    //     })
+    //     .catch(function (error) {
+    //         console.log('Request Failed:' + error);
+    //     });
 }

@@ -4,15 +4,29 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Auth from './auth';
 import Articles from './articles';
+import { Container, Spinner, Content } from 'native-base';
 class Home extends Component {
   static navigationOptions = {
     title: 'Home',
   };
+  constructor() {
+    super();
+    this.state = {
+      loading: true,
+    }
+  }
   /**
    * After loading the component check whether any session is present 
    * if not redirect to authScreen
    */
-
+  async componentWillMount() {
+    await Expo.Font.loadAsync({
+      Roboto: require("native-base/Fonts/Roboto.ttf"),
+      Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
+      //   Ionicons: require("@expo/vector-icons/fonts/Ionicons.ttf"),
+    });
+    this.setState({ loading: false });
+  }
   async componentDidMount() {
     try {
       var sessionJson = await AsyncStorage.getItem("@minimedium:session")
@@ -37,12 +51,21 @@ class Home extends Component {
      * that is, if no session is there then length is zero
      * call authScreen
      */
-    if (Object.keys(this.props.session).length === 0) {
-      return (<Auth />)
-    }
-    else {
-      return (<Articles />)
-    }
+    if (this.state.loading === true) {
+      return (
+        <Container>
+          <Content>
+            <Spinner />
+          </Content>
+        </Container>
+      );
+    } else
+      if (Object.keys(this.props.session).length === 0) {
+        return (<Auth />)
+      }
+      else {
+        return (<Articles />)
+      }
   }
 
 }
