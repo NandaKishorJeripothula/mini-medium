@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { View, Button, Text, Container, Content, Footer, FooterTab } from 'native-base';
+import { Button, Text, FooterTab } from 'native-base';
 import { withNavigation } from 'react-navigation';
 function FooterTabNavigator(props) {
     return (

@@ -64,7 +64,7 @@ class Home extends Component {
         return (<Auth />)
       }
       else {
-        // return this.props.navigation.navigate('Articles');
+
         return (<Articles />)
       }
   }

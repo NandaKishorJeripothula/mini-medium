@@ -16,21 +16,17 @@ class SignUp extends Component {
         super(props);
         this.state = {
             loading: true,
+            userCreated: false,
             usernameInputVal: '',
             passwordInputVal: '',
             fullName: '',
-            profileImageId: '',
             city: '',
+            imageUri: '',
+            imageID: '',
         }
+
     }
-    async componentWillMount() {
-        await Expo.Font.loadAsync({
-            Roboto: require("native-base/Fonts/Roboto.ttf"),
-            Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
-            //   Ionicons: require("@expo/vector-icons/fonts/Ionicons.ttf"),
-        });
-        this.setState({ loading: false });
-    }
+
     /**
          * since we are using this keyword when we invoke method, there is no need to bind again
          * either should be done, binding or using of this keyword 
@@ -59,8 +55,7 @@ class SignUp extends Component {
     }
 
     handleSignUpPressed = async () => {
-
-
+        this.setState({ loading: true });
         var resp = await tryAuth(this.state.usernameInputVal, this.state.passwordInputVal, "signup");
         console.log(resp)
         if (resp.status !== 200) {
@@ -81,8 +76,54 @@ class SignUp extends Component {
             }
             await storeSession(session);
             this.props.dispatch({ type: 'SET_SESSION', session });
-            // var imageUploadRes = await uploadImage()
-            // var createUserData= await tryUserCreate(this.state.fullName, this.state.) 
+            console.log("After Session Creation");
+            this.handleImageUpload;
+            console.log("Before ImageUpload");
+            if (this.props.session) { this.handleCreateUser };
+
+        }
+    }
+    handleCreateUser = async () => {
+        console.log("User Create");
+        var resp = await tryUserCreate(this.state, this.props.session);
+        console.log(resp);
+        this.setState({ imageID: resp.file_id });
+        if (resp.status !== 200) {
+            if (resp.status === 503) {
+                Alert.alert("Network Error", "Please check your internet connection");
+            } else if (resp.status === 400) {
+                Alert.alert("Creation Failed", "Please Try Again ");
+            } else {
+                Alert.alert("Unauthorized", "Invalid Credentials");
+            }
+        } else {
+            // return resp.file_id;
+            console.log("Sucess");
+            this.setState({ userCreated: true })
+        }
+    }
+    handleCityChange = (city) => {
+        this.setState({ city: city });
+    }
+    handleFullNameChange = (fullName) => {
+        this.setState({ fullName: fullName });
+    }
+    handleImageUpload = async () => {
+        console.log("uploading Image");
+        var resp = await uploadImage(this.state.imageUri, this.props.session.auth_token);
+        console.log(resp);
+        this.setState({ imageID: resp.file_id });
+        if (resp.status !== 200) {
+            if (resp.status === 503) {
+                Alert.alert("Network Error", "Please check your internet connection");
+            } else if (resp.status === 400) {
+                Alert.alert("Upload Failes", "Please Try Again ");
+            } else {
+                Alert.alert("Unauthorized", "Invalid Credentials");
+            }
+        } else {
+            console.log("Success");
+            return resp.file_id;
         }
     }
     _pickImage = async () => {
@@ -91,16 +132,14 @@ class SignUp extends Component {
             aspect: [4, 3],
         });
 
-        console.log(result);
-
+        // console.log(result);
         if (!result.cancelled) {
-            this.setState({ image: result.uri });
-            console.log(this.state)
+            this.setState({ imageUri: result });
         }
     };
 
     render() {
-        if (Object.keys(this.props.session).length === 0) {
+        if ((Object.keys(this.props.session).length === 0)) {
             return (
                 <Content contentContainerStyle={{ justifyContent: 'center', margin: 20 }}>
                     <Form>
@@ -126,7 +165,7 @@ class SignUp extends Component {
                             <Button onPress={this._pickImage} >
                                 <Text>Pick </Text>
                             </Button>
-                            <Button>
+                            <Button onPress={this.handleImageUpload}>
                                 <Text>Upload</Text>
                             </Button>
                         </View>
