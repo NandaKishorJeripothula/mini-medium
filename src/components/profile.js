@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 
-import { View, Button, Text, Container, Content, Footer } from 'native-base';
+import { View, Button, Text, Container, Content, Footer, FooterTab } from 'native-base';
 
 import FooterTabNavigator from './footerTabNavigator';
 
@@ -18,7 +18,14 @@ class Profile extends Component {
                     </View >
                 </Content>
                 <Footer>
-                    <FooterTabNavigator />
+                    <FooterTab>
+                        <Button full onPress={() => { this.props.navigation.navigate('Articles') }} >
+                            <Text>Articles</Text>
+                        </Button>
+                        <Button full onPress={() => { this.props.navigation.navigate('Profile') }}>
+                            <Text>Profile</Text>
+                        </Button>
+                    </FooterTab>
                 </Footer>
             </Container>
 

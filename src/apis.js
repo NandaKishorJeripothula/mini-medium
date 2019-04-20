@@ -73,16 +73,16 @@ export async function getArticles(token, hasura_id, id) {
             Accept: 'application/json',
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': "Bearer " + token
-
         },
     };
     if (!hasura_id && !id) {
         //Get all Articles
         requestOptions.body = JSON.stringify({})
     }
+    console.log(requestOptions);
     try {
-        var resp = await fetch(apiUrl + '/api/getArticles', options);
-        console.log(resp);
+        var resp = await fetch(apiUrl + '/api/getArticles', requestOptions).then((res) => { return res.json() });
+        console.log("from API \n", resp);
         return resp;
     }
     catch (err) {

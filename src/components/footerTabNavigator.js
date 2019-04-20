@@ -14,4 +14,4 @@ function FooterTabNavigator(props) {
         </FooterTab>
     )
 }
-export default withNavigation(FooterTabNavigator)
+export default withNavigation(FooterTabNavigator);

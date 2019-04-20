@@ -11,8 +11,8 @@ const clusterName = "loathsome61"; //Add your own cluster name
 var authUrl = "https://auth." + clusterName + ".hasura-app.io/v1/";
 var dataUrl = "https://data." + clusterName + ".hasura-app.io/v1/query";
 var fileStoreUrl = "https://filestore." + clusterName + ".hasura-app.io/v1/file";
-var apiUrl = "https://api." + clusterName + ".hasura-app.io";
-
+//var apiUrl = "https://api." + clusterName + ".hasura-app.io";
+var apiUrl = "http://localhost:8080";
 class SignUp extends Component {
     static navigationOptions = {
         title: 'Signup',
@@ -37,110 +37,151 @@ class SignUp extends Component {
          * either should be done, binding or using of this keyword 
          */
     handleSignUpPressed = async () => {
-        var resp = await signup(this.state)
-        if (resp.status !== 200) {
-            if (resp.status === 503) {
-                Alert.alert("Network Error", "Please check your internet connection");
-            } else {
-                Alert.alert("Unauthorized", "Invalid Credentials");
+        var params = this.state;
+        if (!params.fullName || !params.city || !params.usernameInputVal || !params.passwordInputVal)
+            Alert.alert("Mandatory", "All Fields and image are mandatory")
+        else {
+            let options = {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+
+                },
+            };
+            let resp = '';
+            let data = {
+                "username": params.usernameInputVal,
+                "password": params.passwordInputVal,
+                "full_name": params.fullName,
+                "password": params.passwordInputVal,
+                "city": params.city
             }
-        } else {
-            var respBody = await resp.json();
-            console.log("Login Response")
-            console.log(respBody);
-            var session = {
-                token: respBody.auth_token,
-                userId: respBody.hasura_id
+            options["body"] = JSON.stringify(data);
+            fetch(apiUrl + '/api/newuser', options).then((res) => {
+                console.log("Signup ", res);
+                if (res.statusCode === 200) {
+
+                    return res.json();
+                }
+                else {
+                    Alert.alert(res.statusCode, res.statusText);
+                }
+            }).then((data) => {
+                console.log(data);
+                resp = data;
+            }).catch((err) => {
+                console.log("Request Failed: " + err);
+                return { "status": "503" };
+            });
+            if (resp != '') {
+                await storeSession(res);
+                this.props.dispatch({ type: 'SET_SESSION', session: res });
             }
-            await storeSession(session);
-            this.props.dispatch({ type: 'SET_SESSION', session });
+            // var resp = await signup(this.state)
+            // if (resp.status !== 200) {
+            //     if (resp.status === 503) {
+            //         Alert.alert("Network Error", "Please check your internet connection");
+            //     } else {
+            //         Alert.alert("Unauthorized", "Invalid Credentials");
+            //     }
+            // } else {
+            //     var respBody = await resp.json();
+            //     console.log("Login Response")
+            //     console.log(respBody);
+            //     var session = {
+            //         token: respBody.auth_token,
+            //         userId: respBody.hasura_id
+            //     }
+            //     await storeSession(session);
+            //     this.props.dispatch({ type: 'SET_SESSION', session });
+            // }
         }
     }
-}
 
 
-_pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-        allowsEditing: true,
-        aspect: [3, 3],
-    });
-    // console.log(result);
-    if (!result.cancelled) {
-        this.setState({ imageUri: result.uri });
+    _pickImage = async () => {
+        let result = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            aspect: [3, 3],
+        });
+        // console.log(result);
+        if (!result.cancelled) {
+            this.setState({ imageUri: result.uri });
+        }
+    };
+
+    handleCityChange = (city) => {
+        this.setState({ city: city });
     }
-};
+    handleFullNameChange = (fullName) => {
+        this.setState({ fullName: fullName });
+    }
 
-handleCityChange = (city) => {
-    this.setState({ city: city });
-}
-handleFullNameChange = (fullName) => {
-    this.setState({ fullName: fullName });
-}
+    handleUsernameChange = (usernameTextBox) => {
+        this.setState({
+            ...this.state,
+            usernameInputVal: usernameTextBox
+        })
+    }
 
-handleUsernameChange = (usernameTextBox) => {
-    this.setState({
-        ...this.state,
-        usernameInputVal: usernameTextBox
-    })
-}
+    handlePasswordChange = (passwordTextBox) => {
+        this.setState({
+            ...this.state,
+            passwordInputVal: passwordTextBox
+        })
+    }
+    render() {
+        if (this.state.loading === true) {
+            return (
+                <Container>
+                    <Content>
+                        <Spinner />
+                    </Content>
+                </Container>
+            );
+        } else if ((Object.keys(this.props.session).length === 0)) {
+            return (
+                <Content contentContainerStyle={{ justifyContent: 'center', margin: 20 }}>
+                    <Form>
+                        <Text style={{ paddingBottom: 10, paddingTop: 10 }}>Profile Details</Text>
+                        <Item floatingLabel>
+                            <Label>Username</Label>
+                            <Input value={this.state.usernameInputVal} onChangeText={this.handleUsernameChange} />
+                        </Item>
+                        <Item floatingLabel>
+                            <Label>Password</Label>
+                            <Input value={this.state.passwordInputVal} onChangeText={this.handlePasswordChange} secureTextEntry />
+                        </Item>
+                        <Item floatingLabel>
+                            <Label>Full Name</Label>
+                            <Input value={this.state.fullName} onChangeText={this.handleFullNameChange} />
+                        </Item>
+                        <Item floatingLabel>
+                            <Label>City</Label>
+                            <Input value={this.state.city} onChangeText={this.handleCityChange} />
+                        </Item>
+                        <Text style={{ paddingBottom: 10, paddingTop: 10 }}>Profile Picture</Text>
+                        <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly", paddingTop: 10 }}>
+                            <Button onPress={this._pickImage} >
+                                <Text>Pick </Text>
+                            </Button>
+                        </View>
 
-handlePasswordChange = (passwordTextBox) => {
-    this.setState({
-        ...this.state,
-        passwordInputVal: passwordTextBox
-    })
-}
-render() {
-    if (this.state.loading === true) {
-        return (
-            <Container>
-                <Content>
-                    <Spinner />
+                    </Form>
+                    <View style={{ height: 10 }} />
+                    <Button block title="Log in" onPress={this.handleSignUpPressed} >
+                        <Text>SingUp</Text>
+                    </Button>
+                    <View style={{ height: 10 }} />
                 </Content>
-            </Container>
-        );
-    } else if ((Object.keys(this.props.session).length === 0)) {
-        return (
-            <Content contentContainerStyle={{ justifyContent: 'center', margin: 20 }}>
-                <Form>
-                    <Text style={{ paddingBottom: 10, paddingTop: 10 }}>Profile Details</Text>
-                    <Item floatingLabel>
-                        <Label>Username</Label>
-                        <Input value={this.state.usernameInputVal} onChangeText={this.handleUsernameChange} />
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>Password</Label>
-                        <Input value={this.state.passwordInputVal} onChangeText={this.handlePasswordChange} secureTextEntry />
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>Full Name</Label>
-                        <Input value={this.state.fullName} onChangeText={this.handleFullNameChange} />
-                    </Item>
-                    <Item floatingLabel>
-                        <Label>City</Label>
-                        <Input value={this.state.city} onChangeText={this.handleCityChange} />
-                    </Item>
-                    <Text style={{ paddingBottom: 10, paddingTop: 10 }}>Profile Picture</Text>
-                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly", paddingTop: 10 }}>
-                        <Button onPress={this._pickImage} >
-                            <Text>Pick </Text>
-                        </Button>
-                    </View>
+            )
+        }
+        else {
+            return (<Articles />)
+        }
 
-                </Form>
-                <View style={{ height: 10 }} />
-                <Button block title="Log in" onPress={this.handleSignUpPressed} >
-                    <Text>SingUp</Text>
-                </Button>
-                <View style={{ height: 10 }} />
-            </Content>
-        )
     }
-    else {
-        return (<Articles />)
-    }
-
-}
 }
 function mapStateToProps(state) {
     return {

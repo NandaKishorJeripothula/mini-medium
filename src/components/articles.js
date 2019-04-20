@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-import { View, Button, Text, Container, Content, Footer } from 'native-base';
+import { View, Button, Text, Container, Content, Footer, FooterTab } from 'native-base';
 import { logout } from '../redux/actions'
 import { withNavigation } from 'react-navigation';
 import FooterTabNavigator from './footerTabNavigator';
@@ -15,12 +15,17 @@ class Articles extends Component {
             articleData: '',
         }
         this.handleLogoutPressed = this.handleLogoutPressed.bind(this);
+        this.fetchArticles = this.fetchArticles.bind(this);
 
     }
-    componentDidMount = async () => {
+    componentDidMount = () => {
+        this.fetchArticles();
+    }
+    fetchArticles = async () => {
         //fetch and render the articles 
-        var articleData = getArticles(this.props.session.auth_token);
-        this.setState({ articleData=articleData });
+        var articleData = await getArticles(this.props.session.token);
+        // console.log("From ArticlesPage\n", articleData);
+        this.setState({ articleData: articleData });
     }
 
 
@@ -28,15 +33,19 @@ class Articles extends Component {
         this.props.dispatch(logout());
     }
     render() {
-        let artciles = '';
-        if (this.state.articleData.length > 0) {
-            console.log(articleData)
+
+        let articles;
+        if (this.state.articleData.length !== 0) {
+            // console.log("from render", this.state.articleData);
+            artciles = this.state.articleData.map((artcile, i) => (
+                <ArticleCard id={artcile.id} key={i} />
+            ))
         }
         return (
             <Container>
                 <Content>
                     <View>
-                        {articles}
+                        {/* {articles} */}
                         <Text> Hey am artciles screen</Text>
                         <Button transparent onPress={() => { this.handleLogoutPressed }} >
                             <Text>Logout</Text>
@@ -44,7 +53,14 @@ class Articles extends Component {
                     </View >
                 </Content>
                 <Footer>
-                    <FooterTabNavigator />
+                    <FooterTab>
+                        <Button full onPress={() => { this.props.navigation.navigate('Articles') }} >
+                            <Text>Articles</Text>
+                        </Button>
+                        <Button full onPress={() => { this.props.navigation.navigate('Profile') }}>
+                            <Text>Profile</Text>
+                        </Button>
+                    </FooterTab>
                 </Footer>
 
             </Container>
