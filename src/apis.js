@@ -44,7 +44,7 @@ export async function createUser(data, session) {
         console.log("Request Failed: " + err);
         return networkErrorObj;
     }
-}
+};
 export async function uploadImage(image, token) {
     // This is the file we are going to upload, replace this with your file
     var url = fileStoreUrl;
@@ -59,6 +59,30 @@ export async function uploadImage(image, token) {
     try {
         var resp = await fetch(url, requestOptions);
         // file_id,content_type
+        return resp;
+    }
+    catch (err) {
+        console.log("Request Failed: " + err);
+        return networkErrorObj;
+    }
+};
+export async function getArticles(token, hasura_id, id) {
+    var requestOptions = {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': "Bearer " + token
+
+        },
+    };
+    if (!hasura_id && !id) {
+        //Get all Articles
+        requestOptions.body = JSON.stringify({})
+    }
+    try {
+        var resp = await fetch(apiUrl + '/api/getArticles', options);
+        console.log(resp);
         return resp;
     }
     catch (err) {
@@ -91,5 +115,40 @@ export async function tryAuth(username, password, task) {
     catch (err) {
         console.log("Request Failed: " + err);
         return networkErrorObj;
+    }
+}
+export async function signup(params) {
+    if (!params.fullName || !params.city || !params.usernameInputVal || !params.passwordInputVal)
+        Alert.alert("Mandatory", "All Fields and image are mandatory")
+    else {
+        // let uriParts = params.imageUri.split('.');
+        // let fileType = uriParts[uriParts.length - 1];
+        let formData = new FormData();
+        formData.append('username', params.usernameInputVal);
+        formData.append('password', params.passwordInputVal);
+        formData.append('full_name', params.fullName);
+        formData.append('city', params.city);
+        // formData.append('image', {
+        //     uri: this.state.imageuri,
+        //     name: "userPic." + fileType,
+        //     type: "image/" + fileType,
+        // });
+        let options = {
+            method: 'POST',
+            body: formData,
+            headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded'
+
+            },
+        };
+        try {
+            var resp = await fetch(apiUrl + '/api/newuser', options);
+            return resp;
+        }
+        catch (err) {
+            console.log("Request Failed: " + err);
+            return networkErrorObj;
+        }
     }
 }
