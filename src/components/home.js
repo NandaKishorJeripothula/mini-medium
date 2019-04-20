@@ -59,14 +59,12 @@ class Home extends Component {
           </Content>
         </Container>
       );
-    } else
-      if (Object.keys(this.props.session).length === 0) {
-        return (<Auth />)
-      }
-      else {
-
-        return (<Articles />)
-      }
+    } else if (Object.keys(this.props.session).length === 0) {
+      return (<Auth />)
+    }
+    else {
+      return (<Articles />)
+    }
   }
 
 }

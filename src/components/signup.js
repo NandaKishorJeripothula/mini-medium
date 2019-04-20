@@ -6,6 +6,13 @@ import { tryAuth, uploadImage, createUser } from '../apis';
 import { Container, Title, Content, Button, Thumbnail, Body, Text, Form, Item, Label, Input, Right, Spinner } from 'native-base';
 import { View, Alert } from 'react-native';
 import Articles from './articles';
+
+const clusterName = "loathsome61"; //Add your own cluster name
+var authUrl = "https://auth." + clusterName + ".hasura-app.io/v1/";
+var dataUrl = "https://data." + clusterName + ".hasura-app.io/v1/query";
+var fileStoreUrl = "https://filestore." + clusterName + ".hasura-app.io/v1/file";
+var apiUrl = "https://api." + clusterName + ".hasura-app.io";
+
 class SignUp extends Component {
     static navigationOptions = {
         title: 'Signup',
@@ -30,114 +37,46 @@ class SignUp extends Component {
          * either should be done, binding or using of this keyword 
          */
     handleSignUpPressed = async () => {
-        this.setState({ loading: true });
-        var resp = await tryAuth(this.state.usernameInputVal, this.state.passwordInputVal, "signup");
-        console.log(resp)
-        if (resp.status !== 200) {
-            if (resp.status === 503) {
-                Alert.alert("Network Error", "Please check your internet connection");
-            } else if (resp.status === 400) {
-                Alert.alert("Account Exists", "Please choose diff username");
-            } else {
-                Alert.alert("Unauthorized", "Invalid Credentials");
-            }
-        } else {
-            var respBody = await resp.json();
-            console.log("SignUp Response")
-            console.log(respBody);
-            var session = {
-                token: respBody.auth_token,
-                userId: respBody.hasura_id
-            }
-            this.setState({ session: session })
-            await storeSession(session);
-            this.props.dispatch({ type: 'SET_SESSION', session });
-            console.log("After Session Creation");
-            console.log("uploading Image");
-            var resp = await uploadImage(this.state.imageUri, respBody.auth_token);
-            console.log(resp);
-            if (resp.status !== 200) {
-                if (resp.status === 503) {
-                    Alert.alert("Network Error", "Please check your internet connection");
-                } else if (resp.status === 400) {
-                    Alert.alert("Upload Failes", "Please Try Again ");
-                } else {
-                    Alert.alert("Unauthorized", "Invalid Credentials");
-                }
-            } else {
-                console.log("Success");
-                this.setState({ imageID: resp.file_id });
-                if (this.props.session) {
-                    console.log("User Create");
-                    var resp = await createUser(this.state, respBody);
-                    console.log(resp);
-                    this.setState({ imageID: resp.file_id });
-                    if (resp.status !== 200) {
-                        if (resp.status === 503) {
-                            Alert.alert("Network Error", "Please check your internet connection");
-                        } else if (resp.status === 400) {
-                            Alert.alert("Creation Failed", "Please Try Again ");
-                        } else {
-                            Alert.alert("Unauthorized", "Invalid Credentials");
-                        }
-                    } else {
-                        // return resp.file_id;
-                        console.log("Sucess");
-                        this.setState({ userCreated: true })
-                    }
-                };
-            }
-
+        var params = this.state;
+        if (!params.fullName || !params.city || !params.usernameInputVal || !params.passwordInputVal || !params.imageUri)
+            Alert.alert("Mandatory", "All Fields and image are mandatory")
+        else {
+            let uriParts = params.imageUri.split('.');
+            let fileType = uriParts[uriParts.length - 1];
+            let formData = new FormData();
+            formData.append('userName', params.usernameInputVal);
+            formData.append('password', params.passwordInputVal);
+            formData.append('fullName', params.fullName);
+            formData.append('city', params.city);
+            formData.append('image', {
+                uri: this.state.imageuri,
+                name: "userPic." + fileType,
+                type: "image/" + fileType,
+            });
+            let options = {
+                method: 'GET',
+                body: formData,
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'multipart/form-data',
+                },
+            };
+            fetch(apiUrl + '/api/signup', options).then((res) => {
+                console.log(res);
+            });
 
         }
     }
-    handleCreateUser = async () => {
-        console.log("User Create");
-        var resp = await tryUserCreate(this.state, this.props.session);
-        console.log(resp);
-        this.setState({ imageID: resp.file_id });
-        if (resp.status !== 200) {
-            if (resp.status === 503) {
-                Alert.alert("Network Error", "Please check your internet connection");
-            } else if (resp.status === 400) {
-                Alert.alert("Creation Failed", "Please Try Again ");
-            } else {
-                Alert.alert("Unauthorized", "Invalid Credentials");
-            }
-        } else {
-            // return resp.file_id;
-            console.log("Sucess");
-            this.setState({ userCreated: true })
-        }
-    }
 
-    handleImageUpload = async () => {
-        console.log("uploading Image", this.props.session, "States", this.state);
-        var resp = await uploadImage(this.state.imageUri, "2b9fc9dac01d5799857448790362cbb97d3b1185e9e74f20");
-        console.log(resp);
-        this.setState({ imageID: resp.file_id });
-        if (resp.status !== 200) {
-            if (resp.status === 503) {
-                Alert.alert("Network Error", "Please check your internet connection");
-            } else if (resp.status === 400) {
-                Alert.alert("Upload Failes", "Please Try Again ");
-            } else {
-                Alert.alert("Unauthorized", "Invalid Credentials");
-            }
-        } else {
-            resp = resp.json();
-            console.log("Success", resp.file_id);
-            // return resp.file_id;
-        }
-    }
+
     _pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
-            aspect: [4, 3],
+            aspect: [3, 3],
         });
         // console.log(result);
         if (!result.cancelled) {
-            this.setState({ imageUri: result });
+            this.setState({ imageUri: result.uri });
         }
     };
 
@@ -196,9 +135,6 @@ class SignUp extends Component {
                             <Button onPress={this._pickImage} >
                                 <Text>Pick </Text>
                             </Button>
-                            <Button onPress={this.handleImageUpload}>
-                                <Text>Upload</Text>
-                            </Button>
                         </View>
 
                     </Form>
@@ -216,7 +152,6 @@ class SignUp extends Component {
 
     }
 }
-
 function mapStateToProps(state) {
     return {
         /**
