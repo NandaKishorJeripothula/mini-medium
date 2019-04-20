@@ -1,11 +1,24 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
-
+import { getArticles } from '../apis';
 import { View, Button, Text, Container, Content, Footer, FooterTab } from 'native-base';
 
 import FooterTabNavigator from './footerTabNavigator';
 
 class Profile extends Component {
+    constructor(props) {
+        super(props);
+        this.fetchArticles = this.fetchArticles.bind(this);
+    }
+    componentDidMount = () => {
+        this.fetchArticles();
+    }
+    fetchArticles = async () => {
+        //fetch and render the articles 
+        var articleData = await getArticles(this.props.session.token, this.props.session.user_id);
+        console.log("From Profile Page \n", articleData);
+        this.setState({ articleData: articleData });
+    }
     render() {
         return (
             <Container>
@@ -32,5 +45,7 @@ class Profile extends Component {
         )
     }
 }
-
-export default connect()(Profile);
+mapStatetoProps = (state) => {
+    return { session: state.session }
+}
+export default connect(mapStatetoProps)(Profile);

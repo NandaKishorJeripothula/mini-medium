@@ -9,42 +9,7 @@ var apiUrl = "https://api." + clusterName + ".hasura-app.io";
 const networkErrorObj = {
     status: 503
 }
-export async function createUser(data, session) {
-    var url = dataUrl;
-    var requestOptions = {
-        "method": "POST",
-        "headers": {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + session.auth_token,
-        }
-    };
-    var body = {
-        "type": "insert",
-        "args": {
-            "table": "user_data",
-            "objects": [
-                {
-                    "city": data.city,
-                    "full_name": fullName,
-                    "image_id": imageID,
-                    "user_id": session.hasura_id,
-                }
-            ]
-        }
-    };
 
-    requestOptions.body = JSON.stringify(body);
-    try {
-        var resp = await fetch(url, requestOptions);
-        console.log(resp);
-        // file_id,content_type
-        return resp;
-    }
-    catch (err) {
-        console.log("Request Failed: " + err);
-        return networkErrorObj;
-    }
-};
 export async function uploadImage(image, token) {
     // This is the file we are going to upload, replace this with your file
     var url = fileStoreUrl;
@@ -66,7 +31,7 @@ export async function uploadImage(image, token) {
         return networkErrorObj;
     }
 };
-export async function getArticles(token, hasura_id, id) {
+export async function getArticles(token, user_id, id) {
     var requestOptions = {
         method: 'POST',
         headers: {
@@ -75,14 +40,16 @@ export async function getArticles(token, hasura_id, id) {
             'Authorization': "Bearer " + token
         },
     };
-    if (!hasura_id && !id) {
-        //Get all Articles
+    if (user_id) {
+        requestOptions.body = JSON.stringify({ "hasura_id": user_id });
+
+    } else {
         requestOptions.body = JSON.stringify({})
     }
-    console.log(requestOptions);
+    // console.log(requestOptions);
     try {
         var resp = await fetch(apiUrl + '/api/getArticles', requestOptions).then((res) => { return res.json() });
-        console.log("from API \n", resp);
+        // console.log("from API \n", resp);
         return resp;
     }
     catch (err) {
