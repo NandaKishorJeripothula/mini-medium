@@ -39,7 +39,7 @@ class ArticleCard extends Component {
             },
             "body": {
                 "hasura_id": this.props.session.hasura_id,
-                "id": this.props.article.id
+                "id": this.state.id
             }
         };
         var newLikes = await fetch(apiUrl, requestOptions)
@@ -61,8 +61,8 @@ class ArticleCard extends Component {
                 "Authorization": "Bearer " + this.props.session.auth_token
             },
             "body": {
-                "hasura_id": this.props.session.hasura_id,
-                "id": this.state.article.id
+                "hasura_id": this.props.session.userId,
+                "id": this.state.id
             }
         };
         var newList = await fetch(apiUrl, requestOptions)
@@ -81,35 +81,35 @@ class ArticleCard extends Component {
         }
     }
     render() {
-        console.log("ArticleCard Props\n", this.props.article);
+        // console.log("ArticleCard Props\n", this.props.article);
         console.log("ArticleCard States\n", this.state);
         if (this.props.userArticle === true) {
             return (
                 //onPress={() => this.props.navigation.navigate('ReadArticle', { ...this.state })}
                 <Card>
                     <CardItem cardBody>
-                        <Image source={image} style={{ height: 200, width: null, flex: 1 }} />
+                        <Image source={image} style={{ height: 100, width: null, flex: 1 }} />
                     </CardItem>
                     <CardItem>
                         <Body>
-                            <Text>{this.props.article.title}</Text>
+                            <Text>{this.state.title}</Text>
                         </Body>
                     </CardItem>
                     <CardItem>
                         <Left>
-                            <Button transparent onPress={this.handleLikesButton()}>
-                                <Icon active name="thumbs-up" />
-                                <Text>{this.props.article.likes}</Text>
+                            <Button transparent onPress={() => this.handleLikesButton()}>
+                                <Icon style={{ fontSize: 35 }} active name="thumbs-up" />
+                                <Text>{this.state.likes}</Text>
                             </Button>
                         </Left>
                         <Body>
                             <Button transparent onPress={() => this.handleDeleteButton()}>
-                                <Icon active name="trash" />
+                                <Icon style={{ fontSize: 35 }} active name="trash" />
                             </Button>
                         </Body>
                         <Right>
                             <Button transparent onPress={() => this.handleEditButton()}>
-                                <Icon active name="create" />
+                                <Icon style={{ fontSize: 35 }} active name="create" />
                             </Button>
                         </Right>
                     </CardItem>
@@ -126,19 +126,19 @@ class ArticleCard extends Component {
                     </CardItem>
                     <CardItem>
                         <Body>
-                            <Text>{this.props.article.title}</Text>
+                            <Text>{this.state.title}</Text>
                         </Body>
                     </CardItem>
                     <CardItem>
                         <Left>
                             <Button transparent onPress={() => this.handleLikesButton()}>
-                                <Icon active name="thumbs-up" />
-                                <Text>{this.props.article.likes}</Text>
+                                <Icon style={{ fontSize: 35 }} active name="thumbs-up" />
+                                <Text>{this.state.likes}</Text>
                             </Button>
                         </Left>
                         <Right>
                             <Button transparent onPress={() => this.handleBookmarkButton()}>
-                                <Icon active name="bookmark" />
+                                <Icon style={{ fontSize: 35 }} active name="bookmark" />
                             </Button>
                         </Right>
                     </CardItem>

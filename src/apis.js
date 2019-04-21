@@ -41,13 +41,14 @@ export async function getArticles(token, user_id, id) {
             'Authorization': "Bearer " + token
         },
     };
-    if (user_id) {
+    if (user_id !== null) {
         requestOptions.body = JSON.stringify({ "hasura_id": user_id });
+        console.log("USER");
 
     } else {
         requestOptions.body = JSON.stringify({})
     }
-    // console.log(requestOptions);
+    console.log(requestOptions);
     try {
         var resp = await fetch(apiUrl + '/api/getArticles', requestOptions).then((res) => { return res.json() });
         console.log("from API \n", resp);

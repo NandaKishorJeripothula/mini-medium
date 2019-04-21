@@ -20,7 +20,7 @@ class Profile extends Component {
     }
     fetchArticles = async () => {
         //fetch and render the articles 
-        var articleData = await getArticles(this.props.session.token);
+        var articleData = await getArticles(this.props.session.token, this.props.session.userId);
         //console.log("From Profile \n", articleData);
         this.setState({ articleData: articleData });
     }
