@@ -1,8 +1,9 @@
-// import { authUrl, dataUrl, fileStoreUrl, apiUrl } from './config'
+// import { authUrl, dataUrl, fileStoreUrl, apiUrl } from './config';
 
 const clusterName = "loathsome61"; //Add your own cluster name
 var authUrl = "https://auth." + clusterName + ".hasura-app.io/v1/";
 var dataUrl = "https://data." + clusterName + ".hasura-app.io/v1/query";
+import Alert from 'react-native';
 var fileStoreUrl = "https://filestore." + clusterName + ".hasura-app.io/v1/file";
 var apiUrl = "https://api." + clusterName + ".hasura-app.io";
 
@@ -49,11 +50,12 @@ export async function getArticles(token, user_id, id) {
     // console.log(requestOptions);
     try {
         var resp = await fetch(apiUrl + '/api/getArticles', requestOptions).then((res) => { return res.json() });
-        // console.log("from API \n", resp);
+        console.log("from API \n", resp);
         return resp;
     }
     catch (err) {
         console.log("Request Failed: " + err);
+        Alert.alert("Network", "Error ! Retry.");
         return networkErrorObj;
     }
 }

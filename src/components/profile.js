@@ -1,13 +1,18 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux';
 import { getArticles } from '../apis';
-import { View, Button, Text, Container, Content, Footer, FooterTab } from 'native-base';
-
-import FooterTabNavigator from './footerTabNavigator';
-
+import { View, Button, Text, Container, Content, Footer, FooterTab, List } from 'native-base';
+import ArticleCard from './articleCard';
 class Profile extends Component {
+    static navigationOptions = {
+        title: 'Profile',
+    };
     constructor(props) {
         super(props);
+        this.state = {
+            articleData: [],
+        };
+        this.handleLogoutPressed = this.handleLogoutPressed.bind(this);
         this.fetchArticles = this.fetchArticles.bind(this);
     }
     componentDidMount = () => {
@@ -15,19 +20,37 @@ class Profile extends Component {
     }
     fetchArticles = async () => {
         //fetch and render the articles 
-        var articleData = await getArticles(this.props.session.token, this.props.session.user_id);
-        console.log("From Profile Page \n", articleData);
+        var articleData = await getArticles(this.props.session.token);
+        //console.log("From Profile \n", articleData);
         this.setState({ articleData: articleData });
+    }
+
+    renderArticles = () => {
+        if (this.state.articleData.length > 0) {
+            console.log("Aftrs Before map");
+            var aa = [];
+            this.state.articleData.forEach((item, i) => {
+                aa[i] = <ArticleCard id={item.id} key={i} article={item} userArticle={true} />;
+
+            })
+            console.log(aa);
+
+            return aa;
+        }
+    }
+    handleLogoutPressed = async () => {
+        this.props.dispatch(logout());
     }
     render() {
         return (
             <Container>
                 <Content>
                     <View>
-                        <Text> Hey am artciles screen</Text>
+                        <Text> Hey am Profile screen</Text>
                         <Button transparent onPress={() => { this.handleLogoutPressed() }} >
                             <Text>Logout</Text>
                         </Button>
+                        <List>{this.renderArticles()}</List>
                     </View >
                 </Content>
                 <Footer>

@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-
 import { connect } from 'react-redux';
 import { Image } from 'react-native';
 import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right } from 'native-base';
 import PropTypes from 'prop-types'
 var image = require('../../assets/icon.png');
-
+import { apiUrl } from '../config';
 // ArticleCard.propTypes = {
 //     likes: PropTypes.string.isRequired,
 //     conten: PropTypes.string,
@@ -17,10 +16,11 @@ var image = require('../../assets/icon.png');
 class ArticleCard extends Component {
     constructor(props) {
         super(props);
-        console.log("ArticleCard Props", this.props.article);
-        this.state = this.props.article;
-        console.log("ArticleCard states", this.state);
+        this.state = {
+            loading: true,
 
+            ...this.props.article
+        };
         this.handleLikesButton = this.handleLikesButton.bind(this);
         this.handleEditButton = this.handleEditButton.bind(this);
         this.handleDeleteButton = this.handleDeleteButton.bind(this);
@@ -35,11 +35,11 @@ class ArticleCard extends Component {
             "method": "POST",
             "headers": {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + this.props.session.auth_token
+                "Authorization": "Bearer " + this.props.session.token
             },
             "body": {
                 "hasura_id": this.props.session.hasura_id,
-                "id": this.state.article.id
+                "id": this.props.article.id
             }
         };
         var newLikes = await fetch(apiUrl, requestOptions)
@@ -51,7 +51,7 @@ class ArticleCard extends Component {
             .then((data) => {
                 return data.count;
             });
-        this.setState({ likes: newLkes });
+        this.setState({ likes: newLikes });
     }
     handleBookmarkButton = async () => {
         var requestOptions = {
@@ -81,76 +81,68 @@ class ArticleCard extends Component {
         }
     }
     render() {
-        if (this.props.userArticle == true) {
+        console.log("ArticleCard Props\n", this.props.article);
+        console.log("ArticleCard States\n", this.state);
+        if (this.props.userArticle === true) {
             return (
-                <Container>
-                    <Header />
-                    <Content>
-                        <Card onPress={() => this.props.navigation.navigate('ReadArticle', { ...this.state })}>
-                            <CardItem cardBody>
-                                <Image source={image} style={{ height: 200, width: null, flex: 1 }} />
-                            </CardItem>
-                            <CardItem>
-                                <Body>
-                                    <Text>{this.state.title}</Text>
-                                </Body>
-                            </CardItem>
-                            <CardItem>
-                                <Left>
-                                    <Button transparent onPress={this.handleLikesButton()}>
-                                        <Icon active name="thumbs-up" />
-                                        <Text>{this.state.likes}</Text>
-                                    </Button>
-                                </Left>
-                                <Body>
-                                    <Button transparent onPress={this.handleDeleteButton()}>
-                                        <Icon active name="bin" />
-                                    </Button>
-                                </Body>
-                                <Right>
-                                    <Button transparent onPress={this.handleEditButton()}>
-                                        <Icon active name="pen" />
-                                    </Button>
-                                </Right>
-                            </CardItem>
-                        </Card>
-                    </Content>
-                </Container>
+                //onPress={() => this.props.navigation.navigate('ReadArticle', { ...this.state })}
+                <Card>
+                    <CardItem cardBody>
+                        <Image source={image} style={{ height: 200, width: null, flex: 1 }} />
+                    </CardItem>
+                    <CardItem>
+                        <Body>
+                            <Text>{this.props.article.title}</Text>
+                        </Body>
+                    </CardItem>
+                    <CardItem>
+                        <Left>
+                            <Button transparent onPress={this.handleLikesButton()}>
+                                <Icon active name="thumbs-up" />
+                                <Text>{this.props.article.likes}</Text>
+                            </Button>
+                        </Left>
+                        <Body>
+                            <Button transparent onPress={() => this.handleDeleteButton()}>
+                                <Icon active name="trash" />
+                            </Button>
+                        </Body>
+                        <Right>
+                            <Button transparent onPress={() => this.handleEditButton()}>
+                                <Icon active name="create" />
+                            </Button>
+                        </Right>
+                    </CardItem>
+                </Card>
+
 
             )
         }
         else {
             return (
-                <Container>
-                    <Header />
-                    <Content>
-                        <Card>
-                            <CardItem cardBody>
-                                <Image source={image} style={{ height: 200, width: null, flex: 1 }} />
-                            </CardItem>
-                            <CardItem>
-                                <Body>
-                                    <Text>{this.state.title}fshdfhsadkhflads</Text>
-                                </Body>
-                            </CardItem>
-                            <CardItem>
-                                <Left>
-                                    <Button transparent onPress={this.handleLikesButton()}>
-                                        <Icon active name="thumbs-up" />
-                                        <Text>{this.state.likes}</Text>
-                                    </Button>
-                                </Left>
-                                <Right>
-                                    <Button transparent onPress={this.handleBookmarkButton()}>
-                                        <Icon active name="chatbubbles" />
-                                        <Icon active name="bookmark" />
-                                    </Button>
-                                </Right>
-                            </CardItem>
-                        </Card>
-                    </Content>
-                </Container>
-
+                <Card>
+                    <CardItem cardBody>
+                        <Image source={image} style={{ height: 100, width: null, flex: 1 }} />
+                    </CardItem>
+                    <CardItem>
+                        <Body>
+                            <Text>{this.props.article.title}</Text>
+                        </Body>
+                    </CardItem>
+                    <CardItem>
+                        <Left>
+                            <Button transparent onPress={() => this.handleLikesButton()}>
+                                <Icon active name="thumbs-up" />
+                                <Text>{this.props.article.likes}</Text>
+                            </Button>
+                        </Left>
+                        <Right>
+                            <Button transparent onPress={() => this.handleBookmarkButton()}>
+                                <Icon active name="bookmark" />
+                            </Button>
+                        </Right>
+                    </CardItem>
+                </Card>
             )
         }
 
